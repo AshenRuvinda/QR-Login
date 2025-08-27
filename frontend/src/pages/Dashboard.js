@@ -19,29 +19,39 @@ const Dashboard = () => {
         if (user && user.password) {
           const authString = user.role === 'admin' ? 
             `${user.username}:${user.password}` : 
-            `${user.userId}:${user.password}`;
+            `${user.username}:${user.password}`; // Both admin and staff use username now
           api.defaults.headers.common['Authorization'] = `Basic ${btoa(authString)}`;
         }
 
         if (['hr', 'admin'].includes(user?.role)) {
-          const usersRes = await api.get('/users');
-          const users = usersRes.data;
+          // Fixed: Use the correct endpoint /users/users
+          const usersRes = await api.get('/users/users');
+          console.log('Users response:', usersRes.data);
           
-          setStats({
-            totalUsers: users.length,
-            totalEmployees: users.filter(u => u.role === 'employee').length,
-            activeUsers: users.filter(u => !u.isSuspended).length,
-            todayAttendance: 0 // You can implement this based on your attendance logic
-          });
+          if (usersRes.data.success) {
+            const users = usersRes.data.users;
+            
+            setStats({
+              totalUsers: users.length,
+              totalEmployees: users.length, // All users are employees
+              activeUsers: users.filter(u => !u.isSuspended).length,
+              todayAttendance: users.filter(u => u.currentStatus === 'IN').length
+            });
+          }
         }
       } catch (err) {
         console.error('Error fetching stats:', err);
+        // Don't show error to user, just log it
       } finally {
         setLoading(false);
       }
     };
 
-    fetchStats();
+    if (user) {
+      fetchStats();
+    } else {
+      setLoading(false);
+    }
   }, [user]);
 
   const getWelcomeMessage = () => {
@@ -121,9 +131,9 @@ const Dashboard = () => {
                 <span className="text-2xl">👤</span>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Employees</p>
+                <p className="text-sm font-medium text-gray-600">Active Users</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {loading ? '...' : stats.totalEmployees}
+                  {loading ? '...' : stats.activeUsers}
                 </p>
               </div>
             </div>
@@ -135,9 +145,9 @@ const Dashboard = () => {
                 <span className="text-2xl">✅</span>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Active Users</p>
+                <p className="text-sm font-medium text-gray-600">Currently IN</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {loading ? '...' : stats.activeUsers}
+                  {loading ? '...' : stats.todayAttendance}
                 </p>
               </div>
             </div>

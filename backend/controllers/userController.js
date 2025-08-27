@@ -110,6 +110,7 @@ exports.registerStaff = async (req, res) => {
   }
 };
 
+// Fixed: Get all users with proper response format
 exports.getUsers = async (req, res) => {
   try {
     const users = await User.find({}).sort({ userId: 1 });
