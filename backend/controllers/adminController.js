@@ -1,24 +1,53 @@
 const bcrypt = require('bcryptjs');
-const OfficeMember = require('../models/OfficeMember');
+const Staff = require('../models/Staff');
 
 exports.login = async (req, res) => {
   const { username, password } = req.body;
+  
   try {
-    const admin = await OfficeMember.findOne({ username });
+    console.log('Admin login attempt:', { username });
+    
+    // Find admin in Staff collection
+    const admin = await Staff.findOne({ 
+      username, 
+      role: 'admin',
+      isActive: true 
+    });
+    
     if (!admin) {
-      return res.status(400).json({ msg: 'Invalid credentials' });
+      console.log('Admin not found or inactive');
+      return res.status(400).json({ 
+        msg: 'Invalid credentials',
+        success: false 
+      });
     }
+    
     const isMatch = await bcrypt.compare(password, admin.password);
+    
     if (!isMatch) {
-      return res.status(400).json({ msg: 'Invalid credentials' });
+      console.log('Password mismatch');
+      return res.status(400).json({ 
+        msg: 'Invalid credentials',
+        success: false 
+      });
     }
+    
+    console.log('Admin login successful');
     res.json({
+      success: true,
+      staffId: admin.staffId,
       username: admin.username,
+      firstName: admin.firstName,
+      lastName: admin.lastName,
+      department: admin.department,
       role: admin.role,
+      profilePic: admin.profilePic
     });
   } catch (err) {
-    res.status(500).json({ msg: 'Server error' });
+    console.error('Admin login error:', err);
+    res.status(500).json({ 
+      msg: 'Server error',
+      success: false 
+    });
   }
 };
-
-// Admin-specific actions can be added here if needed, but most are in userController and attendanceController with role checks

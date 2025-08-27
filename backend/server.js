@@ -8,6 +8,7 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
+const adminRoutes = require('./routes/adminRoutes'); // Add this line
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/attendance', attendanceRoutes);
+app.use('/admin', adminRoutes); // Add this line
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
