@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Login from './pages/Login';
 import AdminLogin from './pages/AdminLogin';
@@ -73,13 +73,19 @@ const App = () => {
   return (
     <AuthContext.Provider value={{ user, login, logout }}>
       <Router>
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 flex">
           {user && <Sidebar />}
-          <div className={`transition-all duration-300 ${user ? 'ml-64' : 'ml-0'} min-h-screen`}>
+          <div className={`transition-all duration-300 ${user ? 'ml-80' : 'ml-0'} min-h-screen flex-1 w-full overflow-x-hidden`}>
             <Routes>
+              {/* Landing page redirects to staff login */}
+              <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />} />
+              
+              {/* Auth routes */}
               <Route path="/login" element={<Login />} />
               <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/" element={<PrivateRoute roles={['admin', 'operator', 'hr']}><Dashboard /></PrivateRoute>} />
+              
+              {/* Protected routes */}
+              <Route path="/dashboard" element={<PrivateRoute roles={['admin', 'operator', 'hr']}><Dashboard /></PrivateRoute>} />
               <Route path="/users" element={<PrivateRoute roles={['hr', 'admin']}><Users /></PrivateRoute>} />
               <Route path="/add-staff" element={<PrivateRoute roles={['admin']}><AddStaff /></PrivateRoute>} />
               <Route path="/register" element={<PrivateRoute roles={['operator', 'hr', 'admin']}><RegisterUser /></PrivateRoute>} />
