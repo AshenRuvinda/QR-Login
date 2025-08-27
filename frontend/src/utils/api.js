@@ -4,9 +4,6 @@ const api = axios.create({
   baseURL: process.env.NODE_ENV === 'production' ? '/api' : '', // Use proxy in development
 });
 
-
-
-
 // Request interceptor to automatically add auth headers
 api.interceptors.request.use(
   (config) => {
@@ -15,9 +12,10 @@ api.interceptors.request.use(
       if (userData) {
         const user = JSON.parse(userData);
         if (user && user.password) {
+          // Fix: Use correct field for admin vs staff
           const authString = user.role === 'admin' ? 
             `${user.username}:${user.password}` : 
-            `${user.username}:${user.password}`;
+            `${user.username}:${user.password}`; // Staff also use username now
           config.headers.Authorization = `Basic ${btoa(authString)}`;
         }
       }

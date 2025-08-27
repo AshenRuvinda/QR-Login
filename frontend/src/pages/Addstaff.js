@@ -9,6 +9,7 @@ const AddStaff = () => {
     lastName: '',
     department: '',
     role: 'operator',
+    username: '', // Add username field
     password: '',
     confirmPassword: '',
     profilePic: null
@@ -40,6 +41,14 @@ const AddStaff = () => {
       setError('Department is required');
       return false;
     }
+    if (!formData.username.trim()) {
+      setError('Username is required');
+      return false;
+    }
+    if (formData.username.length < 3) {
+      setError('Username must be at least 3 characters long');
+      return false;
+    }
     if (!formData.password) {
       setError('Password is required');
       return false;
@@ -53,6 +62,13 @@ const AddStaff = () => {
       return false;
     }
     return true;
+  };
+
+  const generateUsername = () => {
+    if (formData.firstName && formData.lastName) {
+      const username = (formData.firstName.toLowerCase() + formData.lastName.toLowerCase()).replace(/\s+/g, '');
+      setFormData({ ...formData, username });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -80,17 +96,19 @@ const AddStaff = () => {
       data.append('lastName', formData.lastName);
       data.append('department', formData.department);
       data.append('role', formData.role);
+      data.append('username', formData.username); // Add username
       data.append('password', formData.password);
       if (formData.profilePic) {
         data.append('profilePic', formData.profilePic);
       }
 
-      const res = await api.post('/users', data, {
+      // Use the correct endpoint for staff registration
+      const res = await api.post('/users/staff/register', data, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
       console.log('Staff created:', res.data);
-      setSuccess(`${formData.role.toUpperCase()} user created successfully! User ID: ${res.data.userId}`);
+      setSuccess(`${formData.role.toUpperCase()} user created successfully! Staff ID: ${res.data.staff.staffId}, Username: ${res.data.staff.username}`);
       
       // Reset form
       setFormData({
@@ -98,6 +116,7 @@ const AddStaff = () => {
         lastName: '',
         department: '',
         role: 'operator',
+        username: '',
         password: '',
         confirmPassword: '',
         profilePic: null
@@ -199,6 +218,34 @@ const AddStaff = () => {
           </select>
           <p className="text-xs text-gray-500 mt-1">
             Operators can register employees and mark attendance. HR can manage users and view reports.
+          </p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Username *
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              required
+              minLength={3}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter username (min 3 characters)"
+            />
+            <button
+              type="button"
+              onClick={generateUsername}
+              className="px-3 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 text-sm"
+            >
+              Auto
+            </button>
+          </div>
+          <p className="text-xs text-gray-500 mt-1">
+            Click "Auto" to generate username from first and last name
           </p>
         </div>
 
