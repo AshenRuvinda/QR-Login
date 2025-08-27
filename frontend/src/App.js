@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import Login from './pages/Login';
 import AdminLogin from './pages/AdminLogin';
@@ -74,10 +73,9 @@ const App = () => {
   return (
     <AuthContext.Provider value={{ user, login, logout }}>
       <Router>
-        {user && <Navbar />}
-        <div className="flex">
+        <div className="min-h-screen bg-gray-50">
           {user && <Sidebar />}
-          <div className={`flex-1 ${user ? 'ml-0' : ''}`}>
+          <div className={`transition-all duration-300 ${user ? 'ml-64' : 'ml-0'} min-h-screen`}>
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/admin/login" element={<AdminLogin />} />
