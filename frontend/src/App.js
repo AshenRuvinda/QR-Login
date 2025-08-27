@@ -7,6 +7,7 @@ import AdminLogin from './pages/AdminLogin';
 import Dashboard from './pages/Dashboard';
 import Users from './pages/Users';
 import RegisterUser from './pages/RegisterUser';
+import AddStaff from './pages/Addstaff';
 import Attendance from './pages/Attendance';
 import Reports from './pages/Reports';
 import PrivateRoute from './router/PrivateRoute';
@@ -24,16 +25,21 @@ const App = () => {
     <AuthContext.Provider value={{ user, login, logout }}>
       <Router>
         {user && <Navbar />}
-        {user && <Sidebar />}
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/" element={<PrivateRoute roles={['admin', 'operator', 'hr']}><Dashboard /></PrivateRoute>} />
-          <Route path="/users" element={<PrivateRoute roles={['hr', 'admin']}><Users /></PrivateRoute>} />
-          <Route path="/register" element={<PrivateRoute roles={['operator']}><RegisterUser /></PrivateRoute>} />
-          <Route path="/attendance" element={<PrivateRoute roles={['operator']}><Attendance /></PrivateRoute>} />
-          <Route path="/reports" element={<PrivateRoute roles={['hr', 'admin']}><Reports /></PrivateRoute>} />
-        </Routes>
+        <div className="flex">
+          {user && <Sidebar />}
+          <div className={`flex-1 ${user ? 'ml-0' : ''}`}>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/" element={<PrivateRoute roles={['admin', 'operator', 'hr']}><Dashboard /></PrivateRoute>} />
+              <Route path="/users" element={<PrivateRoute roles={['hr', 'admin']}><Users /></PrivateRoute>} />
+              <Route path="/add-staff" element={<PrivateRoute roles={['admin']}><AddStaff /></PrivateRoute>} />
+              <Route path="/register" element={<PrivateRoute roles={['operator']}><RegisterUser /></PrivateRoute>} />
+              <Route path="/attendance" element={<PrivateRoute roles={['operator']}><Attendance /></PrivateRoute>} />
+              <Route path="/reports" element={<PrivateRoute roles={['hr', 'admin']}><Reports /></PrivateRoute>} />
+            </Routes>
+          </div>
+        </div>
       </Router>
     </AuthContext.Provider>
   );
