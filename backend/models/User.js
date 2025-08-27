@@ -5,16 +5,22 @@ const userSchema = new mongoose.Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   department: { type: String, required: true },
-  role: { type: String, required: true, enum: ['operator', 'hr', 'employee'] },
   profilePic: { type: String },
-  password: { type: String }, // Required for operator/hr
   isSuspended: { type: Boolean, default: false },
+  currentStatus: { 
+    type: String, 
+    enum: ['OUT', 'IN'], 
+    default: 'OUT' 
+  },
   attendance: [
     {
       timestamp: { type: Date, default: Date.now },
-      markedBy: { type: String },
+      status: { type: String, enum: ['IN', 'OUT'], required: true },
+      markedBy: { type: String, required: true }, // Username or userId of operator
     },
   ],
+}, {
+  timestamps: true
 });
 
 module.exports = mongoose.model('User', userSchema);

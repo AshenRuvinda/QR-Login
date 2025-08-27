@@ -1,26 +1,46 @@
 const bcrypt = require('bcryptjs');
-const User = require('../models/User');
+const Staff = require('../models/Staff');
 
+// Staff login (Admin/HR/Operator)
 exports.login = async (req, res) => {
-  const { userId, password } = req.body;
+  const { username, password } = req.body;
+  
   try {
-    const user = await User.findOne({ userId });
-    if (!user || !['operator', 'hr'].includes(user.role)) {
-      return res.status(400).json({ msg: 'Invalid credentials' });
+    const staff = await Staff.findOne({ username });
+    
+    if (!staff || !staff.isActive) {
+      return res.status(400).json({ 
+        msg: 'Invalid credentials or account inactive',
+        success: false 
+      });
     }
-    const isMatch = await bcrypt.compare(password, user.password);
+    
+    const isMatch = await bcrypt.compare(password, staff.password);
+    
     if (!isMatch) {
-      return res.status(400).json({ msg: 'Invalid credentials' });
+      return res.status(400).json({ 
+        msg: 'Invalid credentials',
+        success: false 
+      });
     }
+    
     res.json({
-      userId: user.userId,
-      role: user.role,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      department: user.department,
-      profilePic: user.profilePic,
+      success: true,
+      staff: {
+        staffId: staff.staffId,
+        username: staff.username,
+        firstName: staff.firstName,
+        lastName: staff.lastName,
+        department: staff.department,
+        role: staff.role,
+        profilePic: staff.profilePic
+      }
     });
   } catch (err) {
-    res.status(500).json({ msg: 'Server error' });
+    console.error('Staff login error:', err);
+    res.status(500).json({ 
+      msg: 'Server error',
+      success: false 
+    });
   }
 };
